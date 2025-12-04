@@ -43,7 +43,7 @@ export class AuthService {
         .sign(this.jwtSecret);
 
       return token;
-    } catch (error) {
+    } catch {
       throw new AuthError('Failed to generate token');
     }
   }
@@ -57,7 +57,7 @@ export class AuthService {
     try {
       await jwtVerify(token, this.jwtSecret);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
