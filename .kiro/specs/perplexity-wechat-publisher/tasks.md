@@ -4,7 +4,7 @@
 
 ## 1. 项目初始化与基础设施
 
-- [ ] 1.0 迁移项目到根目录
+- [x] 1.0 迁移项目到根目录
   - 将 `perplexity-wechat-publisher/` 下的所有文件移动到仓库根目录
   - 删除空的 `perplexity-wechat-publisher/` 文件夹
   - 更新 `.gitignore` 确保 `node_modules/` 等被忽略
