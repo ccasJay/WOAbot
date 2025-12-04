@@ -23,7 +23,7 @@
   - 创建 `tests/` 目录
   - _Requirements: 测试策略_
 
-- [ ] 1.3 定义核心类型
+- [x] 1.3 定义核心类型
   - 创建 `src/types/index.ts`
   - 定义 Topic, Article, Settings, History 接口
   - 定义错误类型层次
@@ -31,7 +31,7 @@
 
 ## 2. 认证模块
 
-- [ ] 2.1 实现 JWT 认证服务
+- [x] 2.1 实现 JWT 认证服务
   - 创建 `src/lib/auth.ts`
   - 实现 `verifyPassword`, `generateToken`, `verifyToken` 函数
   - 使用 jose 库处理 JWT
@@ -43,13 +43,13 @@
   - 测试 token 生成和过期验证
   - **Validates: Requirements 10.2, 10.3, 10.4**
 
-- [ ] 2.3 实现登录 API 路由
+- [x] 2.3 实现登录 API 路由
   - 创建 `src/app/api/auth/login/route.ts`
   - 创建 `src/app/api/auth/logout/route.ts`
   - 设置 httpOnly cookie
   - _Requirements: 10.1, 10.5_
 
-- [ ] 2.4 实现认证中间件
+- [x] 2.4 实现认证中间件
   - 创建 `src/middleware.ts`
   - 保护 `/dashboard` 路由
   - 未认证重定向到 `/login`
