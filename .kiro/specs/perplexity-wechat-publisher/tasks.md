@@ -57,7 +57,7 @@
 
 ## 3. GitHub API 客户端
 
-- [ ] 3.1 实现 GitHub API 客户端
+- [x] 3.1 实现 GitHub API 客户端
   - 创建 `src/lib/github.ts`
   - 实现 `getFile`, `updateFile`, `triggerWorkflow` 方法
   - 处理文件不存在时返回默认配置
@@ -70,7 +70,7 @@
 
 ## 4. 主题管理功能
 
-- [ ] 4.1 实现主题 CRUD API
+- [x] 4.1 实现主题 CRUD API
   - 创建 `src/app/api/topics/route.ts` (GET, POST)
   - 创建 `src/app/api/topics/[id]/route.ts` (PUT, DELETE)
   - 通过 GitHub API 读写 `config/topics.json`
@@ -81,7 +81,7 @@
   - 测试添加、读取、更新、删除操作的一致性
   - **Validates: Requirements 1.2, 1.3, 1.4, 1.5**
 
-- [ ] 4.3 实现主题管理页面
+- [x] 4.3 实现主题管理页面
   - 创建 `src/app/dashboard/topics/page.tsx`
   - 创建 `src/components/TopicList.tsx`
   - 创建 `src/components/TopicForm.tsx`
@@ -89,12 +89,12 @@
 
 ## 5. Checkpoint - 确保所有测试通过
 
-- [ ] 5. Checkpoint
+- [x] 5. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
 ## 6. Perplexity API 客户端
 
-- [ ] 6.1 实现 Perplexity API 客户端
+- [x] 6.1 实现 Perplexity API 客户端
   - 创建 `src/lib/perplexity.ts`
   - 实现 `search` 方法，使用 sonar 模型
   - 实现指数退避重试逻辑（最多 3 次）
@@ -113,7 +113,7 @@
 
 ## 7. 内容生成模块
 
-- [ ] 7.1 实现内容生成器
+- [x] 7.1 实现内容生成器
   - 创建 `src/lib/content.ts`
   - 实现 `buildPrompt` - 合并多主题为单次查询
   - 实现 `generateDailySummary` - 调用 Perplexity 生成内容
@@ -132,7 +132,7 @@
 
 ## 8. 用量统计功能
 
-- [ ] 8.1 实现用量统计模块
+- [x] 8.1 实现用量统计模块
   - 在 `src/lib/content.ts` 中添加 token 记录逻辑
   - 实现 `calculateRemainingDays` 函数
   - 实现 `shouldShowWarning` 函数（80% 阈值）
@@ -148,19 +148,19 @@
   - 测试 80% 阈值判断逻辑
   - **Validates: Requirements 3.1.5**
 
-- [ ] 8.4 实现用量统计 API
+- [x] 8.4 实现用量统计 API
   - 创建 `src/app/api/usage/route.ts`
   - 返回累计用量和预估剩余天数
   - _Requirements: 3.1.4_
 
 ## 9. Checkpoint - 确保所有测试通过
 
-- [ ] 9. Checkpoint
+- [x] 9. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
 ## 10. 微信公众号 API 客户端
 
-- [ ] 10.1 实现微信 API 客户端
+- [x] 10.1 实现微信 API 客户端
   - 创建 `src/lib/wechat.ts`
   - 实现 `getAccessToken` - 获取临时令牌
   - 实现 `uploadImage` - 上传永久素材
@@ -179,7 +179,7 @@
   - 测试 40001 错误触发重新获取 token
   - **Validates: Requirements 6.5**
 
-- [ ] 10.4 实现文章格式转换
+- [x] 10.4 实现文章格式转换
   - 在 `src/lib/wechat.ts` 中实现 `formatForWeChat`
   - 构建符合微信规范的 articles 数组
   - 实现外部图片 URL 替换
@@ -197,7 +197,7 @@
 
 ## 11. 文章状态管理
 
-- [ ] 11.1 实现文章状态管理
+- [x] 11.1 实现文章状态管理
   - 在 `src/lib/content.ts` 中实现状态转换逻辑
   - 实现 `updateArticleStatus` 函数
   - 处理 generated → pushed/failed 转换
@@ -210,7 +210,7 @@
 
 ## 12. 历史记录功能
 
-- [ ] 12.1 实现历史记录 API
+- [x] 12.1 实现历史记录 API
   - 创建 `src/app/api/history/route.ts`
   - 从 `data/history.json` 读取历史
   - 支持按状态筛选
@@ -221,7 +221,7 @@
   - 测试写入后读取返回相同数据
   - **Validates: Requirements 7.1, 7.2, 7.5**
 
-- [ ] 12.3 实现历史记录页面
+- [x] 12.3 实现历史记录页面
   - 创建 `src/app/dashboard/history/page.tsx`
   - 创建 `src/components/HistoryList.tsx`
   - 创建 `src/components/ArticlePreview.tsx`
@@ -230,17 +230,17 @@
 
 ## 13. Checkpoint - 确保所有测试通过
 
-- [ ] 13. Checkpoint
+- [x] 13. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
 ## 14. 设置管理功能
 
-- [ ] 14.1 实现设置 API
+- [x] 14.1 实现设置 API
   - 创建 `src/app/api/settings/route.ts` (GET, PUT)
   - 读写 `config/settings.json`
   - _Requirements: 2.2_
 
-- [ ] 14.2 实现设置页面
+- [x] 14.2 实现设置页面
   - 创建 `src/app/dashboard/settings/page.tsx`
   - 显示定时配置
   - 显示 API 密钥配置状态
@@ -249,26 +249,26 @@
 
 ## 15. 触发功能
 
-- [ ] 15.1 实现 workflow 触发 API
+- [x] 15.1 实现 workflow 触发 API
   - 创建 `src/app/api/trigger/route.ts`
   - 通过 GitHub API 触发 workflow_dispatch
   - _Requirements: 2.3_
 
 ## 16. 登录页面与仪表盘
 
-- [ ] 16.1 实现登录页面
+- [x] 16.1 实现登录页面
   - 创建 `src/app/login/page.tsx`
   - 创建 `src/components/LoginForm.tsx`
   - _Requirements: 10.1, 10.3_
 
-- [ ] 16.2 实现仪表盘首页
+- [x] 16.2 实现仪表盘首页
   - 创建 `src/app/dashboard/page.tsx`
   - 显示概览信息（用量、最近文章）
   - 显示"立即生成"按钮
   - 显示预算警告（如适用）
   - _Requirements: 2.3, 3.1.4, 3.1.5_
 
-- [ ] 16.3 实现布局组件
+- [x] 16.3 实现布局组件
   - 创建 `src/app/dashboard/layout.tsx`
   - 创建 `src/components/Sidebar.tsx`
   - 创建 `src/components/Header.tsx`
@@ -276,7 +276,7 @@
 
 ## 17. GitHub Actions 脚本
 
-- [ ] 17.1 实现每日发布脚本
+- [x] 17.1 实现每日发布脚本
   - 创建 `scripts/daily-publish.ts`
   - 读取配置和主题
   - 调用 Perplexity 生成内容
@@ -284,7 +284,7 @@
   - 更新历史记录
   - _Requirements: 2.1, 3.1, 5.1, 7.5, 9.2_
 
-- [ ] 17.2 创建 GitHub Actions workflow
+- [x] 17.2 创建 GitHub Actions workflow
   - 创建 `.github/workflows/daily-publish.yml`
   - 配置 cron schedule 和 workflow_dispatch
   - 配置环境变量和 secrets
@@ -293,13 +293,13 @@
 
 ## 18. 配置文件初始化
 
-- [ ] 18.1 创建默认配置文件
+- [x] 18.1 创建默认配置文件
   - 创建 `config/topics.json` 默认结构
   - 创建 `config/settings.json` 默认结构
   - 创建 `data/history.json` 默认结构
   - _Requirements: 9.4_
 
-- [ ] 18.2 创建环境变量示例
+- [x] 18.2 创建环境变量示例
   - 创建 `.env.example`
   - 创建 `.env.local.example`
   - 更新 README 部署说明
@@ -307,5 +307,5 @@
 
 ## 19. Final Checkpoint - 确保所有测试通过
 
-- [ ] 19. Final Checkpoint
+- [x] 19. Final Checkpoint
   - Ensure all tests pass, ask the user if questions arise.

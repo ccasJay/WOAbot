@@ -213,3 +213,53 @@ export function getDefaultHistory(): History {
     },
   };
 }
+
+/**
+ * 获取主题配置
+ * 如果文件不存在，返回默认配置
+ */
+export async function getTopics(): Promise<TopicsConfig> {
+  try {
+    const client = createGitHubClient();
+    const topics = await client.getFile<TopicsConfig>('config/topics.json');
+    return topics ?? getDefaultTopicsConfig();
+  } catch {
+    return getDefaultTopicsConfig();
+  }
+}
+
+/**
+ * 获取设置
+ * 如果文件不存在，返回默认设置
+ */
+export async function getSettings(): Promise<Settings> {
+  try {
+    const client = createGitHubClient();
+    const settings = await client.getFile<Settings>('config/settings.json');
+    return settings ?? getDefaultSettings();
+  } catch {
+    return getDefaultSettings();
+  }
+}
+
+/**
+ * 获取历史记录
+ * 如果文件不存在，返回默认历史
+ */
+export async function getHistory(): Promise<History> {
+  try {
+    const client = createGitHubClient();
+    const history = await client.getFile<History>('data/history.json');
+    return history ?? getDefaultHistory();
+  } catch {
+    return getDefaultHistory();
+  }
+}
+
+/**
+ * 更新历史记录
+ */
+export async function updateHistory(history: History): Promise<void> {
+  const client = createGitHubClient();
+  await client.updateFile('data/history.json', history, 'chore: update history');
+}
