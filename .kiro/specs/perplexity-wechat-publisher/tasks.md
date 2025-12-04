@@ -1,15 +1,23 @@
 # 实现计划
 
+> **注意**: 所有项目文件直接放在仓库根目录下，不使用 `perplexity-wechat-publisher` 子文件夹。
+
 ## 1. 项目初始化与基础设施
 
-- [ ] 1.1 初始化 Next.js 项目结构
-  - 创建 Next.js 14 项目（App Router）
+- [ ] 1.0 迁移项目到根目录
+  - 将 `perplexity-wechat-publisher/` 下的所有文件移动到仓库根目录
+  - 删除空的 `perplexity-wechat-publisher/` 文件夹
+  - 更新 `.gitignore` 确保 `node_modules/` 等被忽略
+  - _Requirements: 项目结构_
+
+- [x] 1.1 初始化 Next.js 项目结构
+  - 在仓库根目录初始化 Next.js 14 项目（App Router）
   - 配置 TypeScript 严格模式
   - 安装依赖：tailwindcss, jose (JWT), uuid
   - 创建目录结构：`src/lib/`, `src/types/`, `src/components/`, `scripts/`, `config/`, `data/`
   - _Requirements: 11.1_
 
-- [ ] 1.2 配置测试框架
+- [x] 1.2 配置测试框架
   - 安装 vitest 和 fast-check
   - 创建 `vitest.config.ts`
   - 创建 `tests/` 目录
@@ -80,6 +88,7 @@
   - _Requirements: 1.1_
 
 ## 5. Checkpoint - 确保所有测试通过
+
 - [ ] 5. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
@@ -145,6 +154,7 @@
   - _Requirements: 3.1.4_
 
 ## 9. Checkpoint - 确保所有测试通过
+
 - [ ] 9. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
@@ -219,6 +229,7 @@
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
 ## 13. Checkpoint - 确保所有测试通过
+
 - [ ] 13. Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
@@ -295,5 +306,6 @@
   - _Requirements: 6.1, 8.1, 11.2_
 
 ## 19. Final Checkpoint - 确保所有测试通过
+
 - [ ] 19. Final Checkpoint
   - Ensure all tests pass, ask the user if questions arise.
