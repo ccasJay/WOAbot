@@ -39,18 +39,42 @@ export interface Article {
 }
 
 /**
+ * 调度模式
+ * - daily: 每日执行
+ * - interval: 间隔天数执行
+ * - weekly: 每周指定日期执行
+ */
+export type ScheduleMode = 'daily' | 'interval' | 'weekly';
+
+/**
+ * 调度配置
+ */
+export interface ScheduleConfig {
+  timezone: string;           // 时区，如 'Asia/Shanghai'
+  mode: ScheduleMode;         // 调度模式
+  executionTimes: string[];   // 执行时间点数组，如 ['08:00', '18:00']
+  intervalDays?: number;      // 间隔天数（1-30），仅 interval 模式
+  weekDays?: number[];        // 周执行日（1-7，1=周一），仅 weekly 模式
+}
+
+/**
  * 系统设置
  */
 export interface Settings {
-  schedule: {
-    timezone: string;      // 时区，如 'Asia/Shanghai'
-    preferredTime: string; // 首选时间，如 '08:00'
-  };
+  schedule: ScheduleConfig;
   content: {
     language: string;      // 语言，如 'zh-CN'
     minLength: number;     // 最小字数，默认 1500
     maxLength: number;     // 最大字数，默认 2500
   };
+}
+
+/**
+ * 配置验证结果
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
 }
 
 /**
@@ -63,6 +87,7 @@ export interface History {
     totalCost: number;     // 累计成本（美元）
     lastReset: string;     // 上次重置时间
   };
+  lastExecutionTime?: string; // 上次执行时间（ISO 格式）
 }
 
 /**

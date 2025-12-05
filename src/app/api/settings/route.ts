@@ -1,17 +1,18 @@
 /**
  * 设置管理 API - GET 和 PUT
- * Requirements: 2.2
+ * Requirements: 1.2, 2.2, 3.2
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createGitHubClient, getDefaultSettings } from '@/lib/github';
-import { Settings } from '@/types';
+import { Settings, ScheduleConfig } from '@/types';
+import { validateScheduleConfig } from '@/lib/scheduler';
 
 const SETTINGS_FILE_PATH = 'config/settings.json';
 
 /**
  * GET /api/settings - 获取系统设置
- * Requirements: 2.2
+ * Requirements: 1.2, 2.2, 3.2
  */
 export async function GET(): Promise<NextResponse> {
   try {
@@ -40,7 +41,7 @@ export async function GET(): Promise<NextResponse> {
 
 /**
  * PUT /api/settings - 更新系统设置
- * Requirements: 2.2
+ * Requirements: 1.2, 2.2, 3.2
  */
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
@@ -55,15 +56,27 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       settings = getDefaultSettings();
     }
 
+    // 构建新的调度配置
+    const newSchedule: ScheduleConfig = {
+      timezone: schedule?.timezone ?? settings.schedule.timezone,
+      mode: schedule?.mode ?? settings.schedule.mode,
+      executionTimes: schedule?.executionTimes ?? settings.schedule.executionTimes,
+      ...(schedule?.intervalDays !== undefined && { intervalDays: schedule.intervalDays }),
+      ...(schedule?.weekDays !== undefined && { weekDays: schedule.weekDays }),
+    };
+
+    // 验证调度配置
+    const validation = validateScheduleConfig(newSchedule);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { success: false, error: '配置验证失败', errors: validation.errors },
+        { status: 400 }
+      );
+    }
+
     // 更新设置
     const updatedSettings: Settings = {
-      schedule: {
-        ...settings.schedule,
-        ...(schedule && {
-          ...(schedule.timezone !== undefined && { timezone: schedule.timezone }),
-          ...(schedule.preferredTime !== undefined && { preferredTime: schedule.preferredTime }),
-        }),
-      },
+      schedule: newSchedule,
       content: {
         ...settings.content,
         ...(content && {

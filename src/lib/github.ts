@@ -202,7 +202,8 @@ export function getDefaultSettings(): Settings {
   return {
     schedule: {
       timezone: 'Asia/Shanghai',
-      preferredTime: '08:00',
+      mode: 'daily',
+      executionTimes: ['08:00'],
     },
     content: {
       language: 'zh-CN',
