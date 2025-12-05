@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({
   children,
-}: DashboardLayoutProps): JSX.Element {
+}: DashboardLayoutProps): React.ReactElement {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />

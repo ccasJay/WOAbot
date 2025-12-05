@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 interface NavItem {
   href: string;
   label: string;
-  icon: JSX.Element;
+  icon: React.ReactElement;
 }
 
 const navItems: NavItem[] = [
@@ -54,7 +54,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-export default function Sidebar(): JSX.Element {
+export default function Sidebar(): React.ReactElement {
   const pathname = usePathname();
 
   return (

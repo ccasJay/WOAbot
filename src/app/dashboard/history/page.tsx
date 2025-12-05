@@ -24,7 +24,7 @@ interface HistoryData {
 
 type StatusFilter = 'all' | 'generated' | 'pushed' | 'failed';
 
-export default function HistoryPage(): JSX.Element {
+export default function HistoryPage(): React.ReactElement {
   const [data, setData] = useState<HistoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

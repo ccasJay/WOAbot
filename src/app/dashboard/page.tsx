@@ -31,7 +31,7 @@ interface HistoryData {
   total: number;
 }
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage(): React.ReactElement {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);

@@ -48,7 +48,7 @@ function getStatusText(status: Article['status']): string {
 export default function ArticlePreview({
   article,
   onClose,
-}: ArticlePreviewProps): JSX.Element {
+}: ArticlePreviewProps): React.ReactElement {
   // ESC 键关闭
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent): void => {
