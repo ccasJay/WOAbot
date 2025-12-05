@@ -196,9 +196,18 @@ export default function SettingsPage(): React.ReactElement {
               <p className="text-sm text-gray-500">在 GitHub Secrets 中配置</p>
             </div>
             <div className="flex items-center">
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
-                需在 GitHub 配置
-              </span>
+              <a
+                href="/api/config/github-secrets-url"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/config/github-secrets-url');
+                  const data = await res.json();
+                  if (data.url) window.open(data.url, '_blank');
+                }}
+                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
+              >
+                需在 GitHub 配置 →
+              </a>
             </div>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -207,9 +216,18 @@ export default function SettingsPage(): React.ReactElement {
               <p className="text-sm text-gray-500">AppID 和 AppSecret</p>
             </div>
             <div className="flex items-center">
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
-                需在 GitHub 配置
-              </span>
+              <a
+                href="/api/config/github-secrets-url"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/config/github-secrets-url');
+                  const data = await res.json();
+                  if (data.url) window.open(data.url, '_blank');
+                }}
+                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
+              >
+                需在 GitHub 配置 →
+              </a>
             </div>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -218,9 +236,18 @@ export default function SettingsPage(): React.ReactElement {
               <p className="text-sm text-gray-500">在 Vercel 环境变量中配置</p>
             </div>
             <div className="flex items-center">
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
-                需在 Vercel 配置
-              </span>
+              <a
+                href="/api/config/vercel-env-url"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/config/vercel-env-url');
+                  const data = await res.json();
+                  if (data.url) window.open(data.url, '_blank');
+                }}
+                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
+              >
+                需在 Vercel 配置 →
+              </a>
             </div>
           </div>
         </div>
@@ -233,14 +260,24 @@ export default function SettingsPage(): React.ReactElement {
               href="https://www.perplexity.ai/settings/api"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline"
+              className="underline hover:text-blue-900"
             >
               Perplexity API 设置
-            </a>
+            </a>{' '}
+            获取密钥
             <br />
-            2. 微信公众号凭证：在微信公众平台获取 AppID 和 AppSecret
+            2. 微信公众号凭证：在{' '}
+            <a
+              href="https://mp.weixin.qq.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-blue-900"
+            >
+              微信公众平台
+            </a>{' '}
+            获取 AppID 和 AppSecret
             <br />
-            3. 在 GitHub 仓库 Settings → Secrets 中添加以上密钥
+            3. 点击上方按钮直接跳转到对应的配置页面
           </p>
         </div>
       </div>

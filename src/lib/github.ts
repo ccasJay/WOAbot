@@ -108,8 +108,17 @@ export class GitHubClient {
       });
 
       if (!updateResponse.ok) {
+        const errorBody = await updateResponse.text();
+        console.error('GitHub API Error:', {
+          status: updateResponse.status,
+          statusText: updateResponse.statusText,
+          body: errorBody,
+          url,
+          owner: this.config.owner,
+          repo: this.config.repo,
+        });
         throw new GitHubApiError(
-          `Failed to update file: ${updateResponse.statusText}`,
+          `Failed to update file: ${updateResponse.statusText} - ${errorBody}`,
           updateResponse.status
         );
       }
