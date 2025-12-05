@@ -67,7 +67,7 @@ export default function HistoryList({
   onPreview,
   onRetry,
   retrying,
-}: HistoryListProps): JSX.Element {
+}: HistoryListProps): React.ReactElement {
   if (articles.length === 0) {
     return (
       <div className="text-center py-12 bg-gray-50 rounded-lg">

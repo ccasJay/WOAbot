@@ -21,7 +21,7 @@ interface Settings {
   };
 }
 
-export default function SettingsPage(): JSX.Element {
+export default function SettingsPage(): React.ReactElement {
   const [, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

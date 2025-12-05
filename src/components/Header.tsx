@@ -8,7 +8,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export default function Header(): JSX.Element {
+export default function Header(): React.ReactElement {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
 
