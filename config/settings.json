@@ -1,7 +1,16 @@
 {
   "schedule": {
     "timezone": "Asia/Shanghai",
-    "preferredTime": "08:00"
+    "mode": "weekly",
+    "executionTimes": [
+      "08:00",
+      "23:59"
+    ],
+    "weekDays": [
+      2,
+      4,
+      6
+    ]
   },
   "content": {
     "language": "zh-CN",
