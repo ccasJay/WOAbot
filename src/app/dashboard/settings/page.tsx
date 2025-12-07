@@ -51,6 +51,7 @@ export default function SettingsPage(): React.ReactElement {
 
   // 构建当前调度配置
   const currentSchedule: ScheduleConfig = {
+    enabled: true,
     timezone,
     mode,
     executionTimes,
@@ -69,7 +70,7 @@ export default function SettingsPage(): React.ReactElement {
       if (result.success) {
         const data = result.data as Settings;
         setSettings(data);
-        setTimezone(data.schedule.timezone);
+        setTimezone(data.schedule.timezone || 'Asia/Shanghai');
         setMode(data.schedule.mode || 'daily');
         setExecutionTimes(data.schedule.executionTimes || ['08:00']);
         setIntervalDays(data.schedule.intervalDays || 1);

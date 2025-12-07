@@ -21,32 +21,54 @@ const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 export function validateScheduleConfig(schedule: ScheduleConfig): ValidationResult {
   const errors: string[] = [];
 
-  // 验证时区
-  if (!schedule.timezone) {
-    errors.push('时区不能为空');
+  // 如果未启用，直接返回成功
+  if (!schedule.enabled) {
+    return { valid: true, errors: [] };
   }
 
   // 验证调度模式
-  const validModes: ScheduleMode[] = ['daily', 'interval', 'weekly'];
+  const validModes: ScheduleMode[] = ['daily', 'interval', 'weekly', 'custom'];
   if (!validModes.includes(schedule.mode)) {
     errors.push('无效的调度模式');
   }
 
+  // custom 模式验证
+  if (schedule.mode === 'custom') {
+    if (!schedule.cron) {
+      errors.push('自定义模式需要提供 cron 表达式');
+    }
+    // cron 表达式验证比较复杂，这里只做基本检查
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+
+  // 获取执行时间列表
+  let executionTimes: string[] = [];
+  if (schedule.executionTimes && schedule.executionTimes.length > 0) {
+    executionTimes = schedule.executionTimes;
+  } else if (schedule.times && schedule.times.length > 0) {
+    executionTimes = schedule.times;
+  } else if (schedule.time) {
+    executionTimes = [schedule.time];
+  }
+
   // 验证执行时间点
-  if (!schedule.executionTimes || schedule.executionTimes.length === 0) {
+  if (executionTimes.length === 0) {
     errors.push('至少需要一个执行时间点');
-  } else if (schedule.executionTimes.length > MAX_EXECUTION_TIMES) {
+  } else if (executionTimes.length > MAX_EXECUTION_TIMES) {
     errors.push(`执行时间点不能超过 ${MAX_EXECUTION_TIMES} 个`);
   } else {
     // 验证时间格式
-    for (const time of schedule.executionTimes) {
+    for (const time of executionTimes) {
       if (!TIME_REGEX.test(time)) {
         errors.push(`无效的时间格式: ${time}`);
       }
     }
     // 验证重复时间点
-    const uniqueTimes = new Set(schedule.executionTimes);
-    if (uniqueTimes.size !== schedule.executionTimes.length) {
+    const uniqueTimes = new Set(executionTimes);
+    if (uniqueTimes.size !== executionTimes.length) {
       errors.push('执行时间点不能重复');
     }
   }
@@ -62,10 +84,11 @@ export function validateScheduleConfig(schedule: ScheduleConfig): ValidationResu
 
   // 验证周执行日（仅 weekly 模式）
   if (schedule.mode === 'weekly') {
-    if (!schedule.weekDays || schedule.weekDays.length === 0) {
+    const weekDays = schedule.weekDays || schedule.weekdays || [];
+    if (weekDays.length === 0) {
       errors.push('至少需要选择一个执行日');
     } else {
-      for (const day of schedule.weekDays) {
+      for (const day of weekDays) {
         if (day < 1 || day > 7) {
           errors.push(`无效的星期几: ${day}`);
         }
@@ -89,6 +112,11 @@ export function isValidExecutionDay(
   schedule: ScheduleConfig,
   lastExecutionTime?: string
 ): boolean {
+  // 如果未启用，返回 false
+  if (!schedule.enabled) {
+    return false;
+  }
+
   switch (schedule.mode) {
     case 'daily':
       // 每日模式：任何日期都是有效执行日
@@ -112,7 +140,12 @@ export function isValidExecutionDay(
       // 我们的格式: 1=周一, ..., 7=周日
       const jsDay = date.getDay();
       const ourDay = jsDay === 0 ? 7 : jsDay;
-      return (schedule.weekDays || []).includes(ourDay);
+      const weekDays = schedule.weekDays || schedule.weekdays || [];
+      return weekDays.includes(ourDay);
+
+    case 'custom':
+      // custom 模式在 workflow 层面处理，这里始终返回 true
+      return true;
 
     default:
       return false;
@@ -139,14 +172,33 @@ export function getNextExecutionTime(
     return null;
   }
 
+  // custom 模式不支持计算下次执行时间
+  if (schedule.mode === 'custom') {
+    return null;
+  }
+
+  // 获取执行时间列表
+  let executionTimes: string[] = [];
+  if (schedule.executionTimes && schedule.executionTimes.length > 0) {
+    executionTimes = schedule.executionTimes;
+  } else if (schedule.times && schedule.times.length > 0) {
+    executionTimes = schedule.times;
+  } else if (schedule.time) {
+    executionTimes = [schedule.time];
+  }
+
+  if (executionTimes.length === 0) {
+    return null;
+  }
+
   // 获取时区偏移
-  const offsetHours = getTimezoneOffset(schedule.timezone);
+  const offsetHours = getTimezoneOffset(schedule.timezone || 'Asia/Shanghai');
   
   // 将当前时间转换为用户时区的日期
   const userTime = new Date(currentTime.getTime() + offsetHours * 60 * 60 * 1000);
   
   // 排序执行时间点
-  const sortedTimes = [...schedule.executionTimes].sort();
+  const sortedTimes = [...executionTimes].sort();
   
   // 从当前日期开始，最多查找 365 天
   for (let dayOffset = 0; dayOffset < 365; dayOffset++) {
@@ -190,15 +242,35 @@ export function getNextExecutionTime(
  * 注意：cron 使用 UTC 时间
  */
 export function generateCronExpression(schedule: ScheduleConfig): string[] {
-  const validation = validateScheduleConfig(schedule);
-  if (!validation.valid) {
+  // 如果未启用，返回空数组
+  if (!schedule.enabled) {
     return [];
   }
 
   const cronExpressions: string[] = [];
-  const offsetHours = getTimezoneOffset(schedule.timezone);
+  
+  // 处理 custom 模式
+  if (schedule.mode === 'custom' && schedule.cron) {
+    return [schedule.cron];
+  }
 
-  for (const timeStr of schedule.executionTimes) {
+  // 获取执行时间列表
+  let executionTimes: string[] = [];
+  if (schedule.executionTimes && schedule.executionTimes.length > 0) {
+    executionTimes = schedule.executionTimes;
+  } else if (schedule.times && schedule.times.length > 0) {
+    executionTimes = schedule.times;
+  } else if (schedule.time) {
+    executionTimes = [schedule.time];
+  }
+
+  if (executionTimes.length === 0) {
+    return [];
+  }
+
+  const offsetHours = getTimezoneOffset(schedule.timezone || 'Asia/Shanghai');
+
+  for (const timeStr of executionTimes) {
     const [hours, minutes] = timeStr.split(':').map(Number);
     
     // 转换为 UTC 时间
@@ -229,7 +301,8 @@ export function generateCronExpression(schedule: ScheduleConfig): string[] {
       case 'weekly':
         // 每周指定日期: 分 时 * * 星期
         // cron 星期格式: 0=周日, 1=周一, ..., 6=周六
-        const cronDays = (schedule.weekDays || []).map(day => {
+        const weekDays = schedule.weekDays || schedule.weekdays || [];
+        const cronDays = weekDays.map(day => {
           let cronDay = day === 7 ? 0 : day;
           // 处理日期偏移
           if (dayAdjust !== 0) {

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const formatted = formatNextExecutionTime(result, schedule.timezone);
+    const formatted = formatNextExecutionTime(result, schedule.timezone || 'Asia/Shanghai');
 
     return NextResponse.json({
       success: true,

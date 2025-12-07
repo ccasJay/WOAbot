@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createGitHubClient, getDefaultSettings } from '@/lib/github';
 import { Settings, ScheduleConfig } from '@/types';
-import { validateScheduleConfig } from '@/lib/scheduler';
+import { validateScheduleConfig, generateCronExpression } from '@/lib/scheduler';
 
 const SETTINGS_FILE_PATH = 'config/settings.json';
 
@@ -58,6 +58,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
     // 构建新的调度配置
     const newSchedule: ScheduleConfig = {
+      enabled: schedule?.enabled ?? settings.schedule.enabled,
       timezone: schedule?.timezone ?? settings.schedule.timezone,
       mode: schedule?.mode ?? settings.schedule.mode,
       executionTimes: schedule?.executionTimes ?? settings.schedule.executionTimes,
@@ -93,6 +94,43 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       updatedSettings,
       'chore: update settings'
     );
+
+    // 更新 GitHub Actions workflow 的 cron 表达式
+    try {
+      const workflowPath = '.github/workflows/daily-publish.yml';
+      const workflowContent = await github.getTextFile(workflowPath);
+      
+      if (workflowContent) {
+        // 生成新的 cron 表达式
+        const cronExpressions = generateCronExpression(newSchedule);
+        
+        if (cronExpressions.length > 0) {
+          // 构建新的 schedule 部分
+          const scheduleLines = cronExpressions.map(cron => `    - cron: '${cron}'`).join('\n');
+          
+          // 替换 workflow 文件中的 schedule 部分
+          // 使用正则表达式匹配整个 schedule 块
+          const scheduleBlockRegex = /schedule:\s*\n(    - cron:.*\n)+/;
+          const newScheduleBlock = `schedule:\n${scheduleLines}\n`;
+          
+          const updatedWorkflow = workflowContent.replace(scheduleBlockRegex, newScheduleBlock);
+          
+          // 如果 workflow 内容有变化，更新文件
+          if (updatedWorkflow !== workflowContent) {
+            await github.updateTextFile(
+              workflowPath,
+              updatedWorkflow,
+              `chore: update workflow cron schedule from dashboard settings`
+            );
+            console.log('Workflow cron schedule updated successfully');
+          }
+        }
+      }
+    } catch (error) {
+      // 记录错误但不影响设置保存
+      console.error('Failed to update workflow cron schedule:', error);
+      // 可以选择返回一个警告信息给用户
+    }
 
     return NextResponse.json({
       success: true,

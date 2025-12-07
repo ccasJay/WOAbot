@@ -43,18 +43,24 @@ export interface Article {
  * - daily: 每日执行
  * - interval: 间隔天数执行
  * - weekly: 每周指定日期执行
+ * - custom: 自定义 cron 表达式
  */
-export type ScheduleMode = 'daily' | 'interval' | 'weekly';
+export type ScheduleMode = 'daily' | 'interval' | 'weekly' | 'custom';
 
 /**
  * 调度配置
  */
 export interface ScheduleConfig {
-  timezone: string;           // 时区，如 'Asia/Shanghai'
+  enabled: boolean;           // 是否启用
+  timezone?: string;          // 时区，如 'Asia/Shanghai'
   mode: ScheduleMode;         // 调度模式
-  executionTimes: string[];   // 执行时间点数组，如 ['08:00', '18:00']
+  executionTimes?: string[];  // 执行时间点数组，如 ['08:00', '18:00']
+  times?: string[];           // 执行时间点数组（兼容用法）
+  time?: string;              // 单个执行时间（兼容用法）
   intervalDays?: number;      // 间隔天数（1-30），仅 interval 模式
   weekDays?: number[];        // 周执行日（1-7，1=周一），仅 weekly 模式
+  weekdays?: number[];        // 周执行日（兼容用法）
+  cron?: string;              // 自定义 cron 表达式，仅 custom 模式
 }
 
 /**

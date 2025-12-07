@@ -134,6 +134,115 @@ export class GitHubClient {
   }
 
   /**
+   * 更新文本文件内容（用于 workflow 等 YAML 文件）
+   * Requirements: 动态更新 workflow cron
+   */
+  async updateTextFile(path: string, content: string, message: string): Promise<void> {
+    try {
+      const url = `${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}/contents/${path}`;
+      
+      // 首先获取文件的 SHA（如果存在）
+      let sha: string | undefined;
+      try {
+        const existingResponse = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${this.config.token}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        });
+        
+        if (existingResponse.ok) {
+          const existingData = await existingResponse.json();
+          sha = existingData.sha;
+        }
+      } catch {
+        // 文件不存在，继续创建
+      }
+
+      // 将内容转换为 base64
+      const contentBase64 = Buffer.from(content).toString('base64');
+
+      // 更新或创建文件
+      const updateResponse = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${this.config.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          content: contentBase64,
+          ...(sha && { sha }),
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        const errorBody = await updateResponse.text();
+        console.error('GitHub API Error:', {
+          status: updateResponse.status,
+          statusText: updateResponse.statusText,
+          body: errorBody,
+          url,
+          owner: this.config.owner,
+          repo: this.config.repo,
+        });
+        throw new GitHubApiError(
+          `Failed to update text file: ${updateResponse.statusText} - ${errorBody}`,
+          updateResponse.status
+        );
+      }
+    } catch (error) {
+      if (error instanceof GitHubApiError) {
+        throw error;
+      }
+      throw new GitHubApiError(
+        `Error updating text file on GitHub: ${error instanceof Error ? error.message : String(error)}`,
+        500
+      );
+    }
+  }
+
+  /**
+   * 获取文本文件内容（用于 workflow 等非 JSON 文件）
+   * Requirements: 动态更新 workflow cron
+   */
+  async getTextFile(path: string): Promise<string | null> {
+    try {
+      const url = `${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}/contents/${path}`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${this.config.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (response.status === 404) {
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new GitHubApiError(
+          `Failed to get text file: ${response.statusText}`,
+          response.status
+        );
+      }
+
+      const data = await response.json();
+      // GitHub API 返回 base64 编码的内容
+      return Buffer.from(data.content, 'base64').toString('utf-8');
+    } catch (error) {
+      if (error instanceof GitHubApiError) {
+        throw error;
+      }
+      throw new GitHubApiError(
+        `Error reading text file from GitHub: ${error instanceof Error ? error.message : String(error)}`,
+        500
+      );
+    }
+  }
+
+  /**
    * 触发 GitHub Actions workflow
    * Requirements: 2.3
    */
@@ -201,6 +310,7 @@ export function getDefaultTopicsConfig(): TopicsConfig {
 export function getDefaultSettings(): Settings {
   return {
     schedule: {
+      enabled: true,
       timezone: 'Asia/Shanghai',
       mode: 'daily',
       executionTimes: ['08:00'],
