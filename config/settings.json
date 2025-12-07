@@ -1,16 +1,13 @@
 {
   "schedule": {
+    "enabled": true,
     "timezone": "Asia/Shanghai",
-    "mode": "weekly",
-    "executionTimes": [
-      "08:00",
-      "23:59"
+    "mode": "custom",
+    "cron": "27 14 * * *",
+    "times": [
+      "22:27"
     ],
-    "weekDays": [
-      2,
-      4,
-      6
-    ]
+    "_comment": "测试调度 - 设置于 2025/12/7 22:12:06"
   },
   "content": {
     "language": "zh-CN",
