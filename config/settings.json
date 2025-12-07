@@ -3,11 +3,11 @@
     "enabled": true,
     "timezone": "Asia/Shanghai",
     "mode": "custom",
-    "cron": "27 14 * * *",
+    "cron": "40 14 * * *",
     "times": [
-      "22:27"
+      "22:40"
     ],
-    "_comment": "测试调度 - 设置于 2025/12/7 22:12:06"
+    "_comment": "修复调度时间 - 2025/12/7 22:33:51"
   },
   "content": {
     "language": "zh-CN",
