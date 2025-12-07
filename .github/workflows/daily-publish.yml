@@ -7,8 +7,8 @@ name: Daily Publish
 
 on:
   schedule:
-    # 测试调度 - 2025/12/7 22:29 (北京时间) = UTC 14:29
-    - cron: '29 14 * * *'
+    # 测试调度 - 每5分钟执行一次
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     # 支持手动触发
 

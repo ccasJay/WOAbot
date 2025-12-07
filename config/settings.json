@@ -1,8 +1,13 @@
 {
   "schedule": {
+    "enabled": true,
     "timezone": "Asia/Shanghai",
-    "mode": "daily",
-    "executionTimes": ["08:00"]
+    "mode": "custom",
+    "cron": "40 14 * * *",
+    "times": [
+      "22:40"
+    ],
+    "_comment": "修复调度时间 - 2025/12/7 22:33:51"
   },
   "content": {
     "language": "zh-CN",
