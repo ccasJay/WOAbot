@@ -7,8 +7,8 @@ name: Daily Publish
 
 on:
   schedule:
-    # 定时执行 - 22:40 (北京时间) = UTC 14:40
-    - cron: '40 14 * * *'
+    # 测试调度 - 每5分钟执行一次
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     # 支持手动触发
 
