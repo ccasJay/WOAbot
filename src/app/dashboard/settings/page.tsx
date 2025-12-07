@@ -4,22 +4,32 @@
  * 设置页面
  * 
  * 显示定时配置、API 密钥状态和微信凭证状态
- * Requirements: 2.2, 6.2, 8.2
+ * Requirements: 1.1, 2.1, 3.1, 6.2, 8.2
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { ScheduleMode, ScheduleConfig } from '@/types';
+import ScheduleModeSelector from '@/components/ScheduleModeSelector';
+import ExecutionTimesEditor from '@/components/ExecutionTimesEditor';
+import WeekDaySelector from '@/components/WeekDaySelector';
+import NextExecutionPreview from '@/components/NextExecutionPreview';
 
 interface Settings {
-  schedule: {
-    timezone: string;
-    preferredTime: string;
-  };
+  schedule: ScheduleConfig;
   content: {
     language: string;
     minLength: number;
     maxLength: number;
   };
 }
+
+const TIMEZONE_OPTIONS = [
+  { value: 'Asia/Shanghai', label: 'Asia/Shanghai (北京时间)' },
+  { value: 'Asia/Tokyo', label: 'Asia/Tokyo (东京时间)' },
+  { value: 'America/New_York', label: 'America/New_York (纽约时间)' },
+  { value: 'Europe/London', label: 'Europe/London (伦敦时间)' },
+  { value: 'UTC', label: 'UTC' },
+];
 
 export default function SettingsPage(): React.ReactElement {
   const [, setSettings] = useState<Settings | null>(null);
@@ -28,11 +38,26 @@ export default function SettingsPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // 表单状态
+  // 调度配置状态
   const [timezone, setTimezone] = useState('Asia/Shanghai');
-  const [preferredTime, setPreferredTime] = useState('08:00');
+  const [mode, setMode] = useState<ScheduleMode>('daily');
+  const [executionTimes, setExecutionTimes] = useState<string[]>(['08:00']);
+  const [intervalDays, setIntervalDays] = useState(1);
+  const [weekDays, setWeekDays] = useState<number[]>([1, 3, 5]);
+
+  // 内容配置状态
   const [minLength, setMinLength] = useState(1500);
   const [maxLength, setMaxLength] = useState(2500);
+
+  // 构建当前调度配置
+  const currentSchedule: ScheduleConfig = {
+    enabled: true,
+    timezone,
+    mode,
+    executionTimes,
+    ...(mode === 'interval' && { intervalDays }),
+    ...(mode === 'weekly' && { weekDays }),
+  };
 
   const fetchSettings = useCallback(async (): Promise<void> => {
     try {
@@ -43,11 +68,15 @@ export default function SettingsPage(): React.ReactElement {
       const result = await response.json();
 
       if (result.success) {
-        setSettings(result.data);
-        setTimezone(result.data.schedule.timezone);
-        setPreferredTime(result.data.schedule.preferredTime);
-        setMinLength(result.data.content.minLength);
-        setMaxLength(result.data.content.maxLength);
+        const data = result.data as Settings;
+        setSettings(data);
+        setTimezone(data.schedule.timezone || 'Asia/Shanghai');
+        setMode(data.schedule.mode || 'daily');
+        setExecutionTimes(data.schedule.executionTimes || ['08:00']);
+        setIntervalDays(data.schedule.intervalDays || 1);
+        setWeekDays(data.schedule.weekDays || [1, 3, 5]);
+        setMinLength(data.content.minLength);
+        setMaxLength(data.content.maxLength);
       } else {
         throw new Error(result.error || '获取设置失败');
       }
@@ -72,7 +101,7 @@ export default function SettingsPage(): React.ReactElement {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          schedule: { timezone, preferredTime },
+          schedule: currentSchedule,
           content: { minLength, maxLength },
         }),
       });
@@ -83,7 +112,8 @@ export default function SettingsPage(): React.ReactElement {
         setSettings(result.data);
         setSuccess('设置已保存');
       } else {
-        throw new Error(result.error || '保存失败');
+        const errorMsg = result.errors?.join(', ') || result.error || '保存失败';
+        throw new Error(errorMsg);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存失败');
@@ -116,40 +146,67 @@ export default function SettingsPage(): React.ReactElement {
         </div>
       )}
 
+
       {/* 定时配置 */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">定时配置</h2>
-        <div className="space-y-4">
+      <div className="bg-white rounded-lg shadow p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-gray-900">定时配置</h2>
+        
+        {/* 时区选择 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            时区
+          </label>
+          <select
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {TIMEZONE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 调度模式选择 */}
+        <ScheduleModeSelector value={mode} onChange={setMode} />
+
+        {/* 间隔天数（仅 interval 模式） */}
+        {mode === 'interval' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              时区
-            </label>
-            <select
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Asia/Shanghai">Asia/Shanghai (北京时间)</option>
-              <option value="Asia/Tokyo">Asia/Tokyo (东京时间)</option>
-              <option value="America/New_York">America/New_York (纽约时间)</option>
-              <option value="Europe/London">Europe/London (伦敦时间)</option>
-              <option value="UTC">UTC</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              首选发布时间
+              间隔天数
+              <span className="ml-2 text-gray-400">（1-30 天）</span>
             </label>
             <input
-              type="time"
-              value={preferredTime}
-              onChange={(e) => setPreferredTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="number"
+              value={intervalDays}
+              onChange={(e) => setIntervalDays(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
+              min={1}
+              max={30}
+              className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              注意：实际 cron 时间需要在 GitHub Actions workflow 文件中手动配置
-            </p>
           </div>
+        )}
+
+        {/* 周执行日选择（仅 weekly 模式） */}
+        {mode === 'weekly' && (
+          <WeekDaySelector selectedDays={weekDays} onChange={setWeekDays} />
+        )}
+
+        {/* 执行时间点 */}
+        <ExecutionTimesEditor
+          times={executionTimes}
+          onChange={setExecutionTimes}
+        />
+
+        {/* 下次执行预览 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            执行预览
+          </label>
+          <NextExecutionPreview schedule={currentSchedule} />
         </div>
       </div>
 
@@ -195,90 +252,37 @@ export default function SettingsPage(): React.ReactElement {
               <h3 className="font-medium text-gray-900">Perplexity API 密钥</h3>
               <p className="text-sm text-gray-500">在 GitHub Secrets 中配置</p>
             </div>
-            <div className="flex items-center">
-              <a
-                href="/api/config/github-secrets-url"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/config/github-secrets-url');
-                  const data = await res.json();
-                  if (data.url) window.open(data.url, '_blank');
-                }}
-                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
-              >
-                需在 GitHub 配置 →
-              </a>
-            </div>
+            <a
+              href="/api/config/github-secrets-url"
+              onClick={async (e) => {
+                e.preventDefault();
+                const res = await fetch('/api/config/github-secrets-url');
+                const data = await res.json();
+                if (data.url) window.open(data.url, '_blank');
+              }}
+              className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
+            >
+              需在 GitHub 配置 →
+            </a>
           </div>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div>
               <h3 className="font-medium text-gray-900">微信公众号凭证</h3>
               <p className="text-sm text-gray-500">AppID 和 AppSecret</p>
             </div>
-            <div className="flex items-center">
-              <a
-                href="/api/config/github-secrets-url"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/config/github-secrets-url');
-                  const data = await res.json();
-                  if (data.url) window.open(data.url, '_blank');
-                }}
-                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
-              >
-                需在 GitHub 配置 →
-              </a>
-            </div>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">GitHub Token</h3>
-              <p className="text-sm text-gray-500">在 Vercel 环境变量中配置</p>
-            </div>
-            <div className="flex items-center">
-              <a
-                href="/api/config/vercel-env-url"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/config/vercel-env-url');
-                  const data = await res.json();
-                  if (data.url) window.open(data.url, '_blank');
-                }}
-                className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
-              >
-                需在 Vercel 配置 →
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-700">
-            <strong>配置指南：</strong>
-            <br />
-            1. Perplexity API 密钥：访问{' '}
             <a
-              href="https://www.perplexity.ai/settings/api"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-blue-900"
+              href="/api/config/github-secrets-url"
+              onClick={async (e) => {
+                e.preventDefault();
+                const res = await fetch('/api/config/github-secrets-url');
+                const data = await res.json();
+                if (data.url) window.open(data.url, '_blank');
+              }}
+              className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full hover:bg-yellow-200 transition-colors cursor-pointer"
             >
-              Perplexity API 设置
-            </a>{' '}
-            获取密钥
-            <br />
-            2. 微信公众号凭证：在{' '}
-            <a
-              href="https://mp.weixin.qq.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-blue-900"
-            >
-              微信公众平台
-            </a>{' '}
-            获取 AppID 和 AppSecret
-            <br />
-            3. 点击上方按钮直接跳转到对应的配置页面
-          </p>
+              需在 GitHub 配置 →
+            </a>
+          </div>
         </div>
       </div>
 

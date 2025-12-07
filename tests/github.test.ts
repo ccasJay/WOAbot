@@ -17,8 +17,10 @@ describe('GitHub Client - Default Configurations', () => {
     const settings = getDefaultSettings();
     expect(settings).toHaveProperty('schedule');
     expect(settings).toHaveProperty('content');
+    expect(settings.schedule.enabled).toBe(true);
     expect(settings.schedule.timezone).toBe('Asia/Shanghai');
-    expect(settings.schedule.preferredTime).toBe('08:00');
+    expect(settings.schedule.mode).toBe('daily');
+    expect(settings.schedule.executionTimes).toEqual(['08:00']);
     expect(settings.content.language).toBe('zh-CN');
     expect(settings.content.minLength).toBe(1500);
     expect(settings.content.maxLength).toBe(2500);
